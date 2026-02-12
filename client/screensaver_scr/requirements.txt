@@ -1,0 +1,3 @@
+PyQt6>=6.5.0
+PyQt6-QtMultimedia>=6.5.0
+pywin32>=305
