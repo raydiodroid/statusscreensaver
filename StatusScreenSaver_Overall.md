@@ -2804,7 +2804,14 @@ pywin32>=305  # Windows IPC 支持
 
 ## 7. API 接口设计
 
-### 7.1 WebSocket 协议
+### 7.1 认证方式
+
+| 认证类型 | 使用场景 | 方式 |
+|----------|----------|------|
+| **API Key** | HTTP API 调用 | Header: `X-API-Key: sk_xxx` |
+| **Token** | WebSocket 连接 | Query: `?token=xxx` 或首次注册后获取 |
+
+### 7.2 WebSocket 协议
 
 #### 客户端 → 服务器
 
@@ -2818,21 +2825,22 @@ pywin32>=305  # Windows IPC 支持
 
 | 类型 | 说明 | 示例 |
 |------|------|------|
-| `register_ack` | 注册确认 | `{"type": "register_ack", "device_id": "abc123"}` |
+| `register_ack` | 注册确认 | `{"type": "register_ack", "device_id": "abc123", "token": "xxx"}` |
 | `pong` | 心跳响应 | `{"type": "pong"}` |
 | `command` | 执行指令 | `{"type": "command", "command": {"action": "switch", "index": 1}}` |
 
-### 7.2 HTTP API
+### 7.3 HTTP API
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| `GET` | `/` | 健康检查 |
-| `GET` | `/devices` | 获取设备列表 |
-| `POST` | `/device/{id}/command` | 向指定设备发送指令 |
-| `POST` | `/broadcast` | 广播指令到多个设备 |
-| `DELETE` | `/device/{id}` | 移除设备 |
+| 方法 | 路径 | 说明 | 认证 |
+|------|------|------|------|
+| `GET` | `/` | 健康检查 | 无 |
+| `POST` | `/auth/refresh` | 刷新 Token | 无 |
+| `GET` | `/devices` | 获取设备列表 | API Key |
+| `POST` | `/device/{id}/command` | 向指定设备发送指令 | API Key |
+| `POST` | `/broadcast` | 广播指令到多个设备 | API Key |
+| `DELETE` | `/device/{id}` | 移除设备 | API Key |
 
-### 7.3 指令类型
+### 7.4 指令类型
 
 | action | 参数 | 说明 |
 |--------|------|------|
@@ -2843,16 +2851,27 @@ pywin32>=305  # Windows IPC 支持
 | `pause` | - | 暂停轮播 |
 | `reload` | - | 重新加载配置 |
 | `set_content` | `content: dict` | 动态设置内容 |
+| `download` | `url, filename` | 下载内容 |
 
-### 7.4 调用示例
+### 7.5 调用示例
 
 ```bash
-# 查看在线设备
-curl https://your-server.com/devices
+# 健康检查（无需认证）
+curl https://your-server.com/
+
+# 查看在线设备（需要 API Key）
+curl -H "X-API-Key: sk_default_key_change_me" https://your-server.com/devices
 
 # 单设备控制
 curl -X POST https://your-server.com/device/abc123/command \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: sk_default_key_change_me" \
+  -d '{"action": "switch", "index": 1}'
+
+# 广播到所有设备
+curl -X POST https://your-server.com/broadcast \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: sk_default_key_change_me" \
   -d '{"action": "switch", "index": 1}'
 
 # 广播到所有设备
@@ -3066,24 +3085,95 @@ sudo systemctl enable screensaver-server
 sudo systemctl start screensaver-server
 ```
 
-#### 方案三：Docker 部署
+#### 方案三：Docker 部署（推荐）
+
+**Dockerfile:**
 
 ```dockerfile
 FROM python:3.11-slim
 
 WORKDIR /app
+
+# 设置时区
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# 安装依赖
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# 复制代码
 COPY . .
+
+# 创建数据目录
+RUN mkdir -p /app/data
 
 EXPOSE 8000
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
+**docker-compose.yml:**
+
+```yaml
+version: '3.8'
+
+services:
+  screensaver-server:
+    build: .
+    image: screensaver-server:latest
+    container_name: screensaver-server
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    restart: always
+    environment:
+      - TZ=Asia/Shanghai
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+```
+
+**部署命令:**
+
 ```bash
-docker build -t screensaver-server .
-docker run -d -p 8000:8000 --name screensaver-server screensaver-server
+# 构建并启动
+docker-compose up -d
+
+# 查看日志
+docker-compose logs -f
+
+# 重启服务
+docker-compose restart
+```
+
+#### 方案四：Nginx + HTTPS（生产环境）
+
+```nginx
+# /etc/nginx/sites-available/screensaver
+server {
+    listen 443 ssl;
+    server_name your-domain.com;
+
+    ssl_certificate /etc/letsencrypt/live/your-domain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/your-domain.com/privkey.pem;
+
+    # WebSocket 支持
+    location /ws {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 86400;
+    }
+
+    # HTTP API
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+    }
+}
 ```
 
 ### 9.2 客户端部署
