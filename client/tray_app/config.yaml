@@ -1,6 +1,6 @@
 # 服务器配置
 server:
-  url: "ws://localhost:8000/ws"
+  url: "ws://localhost:9876/ws"
   token: null                # 首次连接时由服务器分配
   reconnect_interval: 5      # 断线重连间隔（秒）
   heartbeat_interval: 30     # 心跳间隔（秒）

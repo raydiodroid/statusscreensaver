@@ -14,7 +14,7 @@ python main.py
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-服务将在 `http://0.0.0.0:8000` 启动。
+服务将在 `http://0.0.0.0:9876` 启动。
 
 ---
 
@@ -37,7 +37,7 @@ After=network.target
 Type=simple
 User=www-data
 WorkingDirectory=/opt/screensaver-server
-ExecStart=/usr/bin/python3 -m uvicorn main:app --host 0.0.0.0 --port 8000
+ExecStart=/usr/bin/python3 -m uvicorn main:app --host 0.0.0.0 --port 9876
 Restart=always
 RestartSec=5
 Environment=PYTHONUNBUFFERED=1
@@ -132,7 +132,7 @@ services:
   screensaver-server:
     build: .
     ports:
-      - "8000:8000"
+      - "9876:9876"
     volumes:
       - ./data:/app/data
     restart: always
@@ -183,7 +183,7 @@ server {
 
     # WebSocket 支持
     location /ws {
-        proxy_pass http://127.0.0.1:8000;
+        proxy_pass http://127.0.0.1:9876;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -198,7 +198,7 @@ server {
 
     # HTTP API
     location / {
-        proxy_pass http://127.0.0.1:8000;
+        proxy_pass http://127.0.0.1:9876;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

@@ -6,7 +6,7 @@ services:
     image: screensaver-server:latest
     container_name: screensaver-server
     ports:
-      - "8000:8000"
+      - "9876:9876"
     volumes:
       - ./data:/app/data
     restart: always

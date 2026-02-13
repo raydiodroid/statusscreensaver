@@ -66,7 +66,7 @@ cd server
 python main.py
 ```
 
-服务端将在 `http://localhost:8000` 启动，API 文档位于 `http://localhost:8000/docs`。
+服务端将在 `http://localhost:9876` 启动，API 文档位于 `http://localhost:9876/docs`。
 
 ### 3. 启动常驻应用
 
@@ -140,13 +140,13 @@ contents:
 ### 获取设备列表
 
 ```bash
-curl -H "X-API-Key: sk_default_key_change_me" http://localhost:8000/devices
+curl -H "X-API-Key: sk_default_key_change_me" http://localhost:9876/devices
 ```
 
 ### 广播切换指令
 
 ```bash
-curl -X POST http://localhost:8000/broadcast \
+curl -X POST http://localhost:9876/broadcast \
   -H "Content-Type: application/json" \
   -H "X-API-Key: sk_default_key_change_me" \
   -d '{"command": {"action": "next"}}'
@@ -155,7 +155,7 @@ curl -X POST http://localhost:8000/broadcast \
 ### 向指定设备发送指令
 
 ```bash
-curl -X POST http://localhost:8000/device/{device_id}/command \
+curl -X POST http://localhost:9876/device/{device_id}/command \
   -H "Content-Type: application/json" \
   -H "X-API-Key: sk_default_key_change_me" \
   -d '{"action": "switch", "index": 1}'

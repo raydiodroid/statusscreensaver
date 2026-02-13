@@ -3009,7 +3009,7 @@ server {
     ssl_certificate_key /path/to/key.pem;
     
     location /ws {
-        proxy_pass http://localhost:8000;
+        proxy_pass http://localhost:9876;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -3123,14 +3123,14 @@ services:
     image: screensaver-server:latest
     container_name: screensaver-server
     ports:
-      - "8000:8000"
+      - "9876:9876"
     volumes:
       - ./data:/app/data
     restart: always
     environment:
       - TZ=Asia/Shanghai
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      test: ["CMD", "curl", "-f", "http://localhost:9876/"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -3162,7 +3162,7 @@ server {
 
     # WebSocket 支持
     location /ws {
-        proxy_pass http://127.0.0.1:8000;
+        proxy_pass http://127.0.0.1:9876;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -3171,7 +3171,7 @@ server {
 
     # HTTP API
     location / {
-        proxy_pass http://127.0.0.1:8000;
+        proxy_pass http://127.0.0.1:9876;
     }
 }
 ```
