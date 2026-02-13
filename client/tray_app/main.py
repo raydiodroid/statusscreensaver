@@ -48,6 +48,26 @@ def load_config(config_path: str = "config.yaml") -> dict:
     raise FileNotFoundError(f"配置文件不存在: {config_path}")
 
 
+def save_config(config: dict, config_path: str = "config.yaml"):
+    """保存配置文件"""
+    paths = [
+        Path(config_path),
+        Path(__file__).parent / config_path,
+    ]
+    
+    for path in paths:
+        if path.exists():
+            with open(path, encoding="utf-8", mode="w") as f:
+                yaml.dump(config, f, allow_unicode=True, default_flow_style=False)
+            logger.info(f"配置已保存: {path}")
+            return
+    
+    # 如果文件不存在，保存到当前目录
+    with open(config_path, encoding="utf-8", mode="w") as f:
+        yaml.dump(config, f, allow_unicode=True, default_flow_style=False)
+    logger.info(f"配置已保存: {config_path}")
+
+
 def main():
     # 加载配置
     config = load_config()
@@ -134,6 +154,21 @@ def main():
     tray_icon = TrayIcon(config, playlist, ipc_server)
     tray_icon.show()
     logger.info("系统托盘图标已创建")
+    
+    # 内容管理对话框
+    def on_manage_content():
+        from core.content_dialog import ContentManagerDialog
+        dialog = ContentManagerDialog(config)
+        if dialog.exec():
+            # 内容已更新
+            new_contents = dialog.get_contents()
+            config["contents"] = new_contents
+            playlist.reload(config)
+            # 保存配置
+            save_config(config)
+            tray_icon.show_message("内容管理", f"已更新 {len(new_contents)} 个内容")
+    
+    tray_icon.manage_content.connect(on_manage_content)
     
     # 内容切换回调 - 同步到 IPC
     def on_content_change(content, index):

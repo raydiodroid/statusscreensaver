@@ -48,6 +48,50 @@ echo 打包常驻应用 (Tray App)...
 echo ========================================
 cd /d "%CLIENT_DIR%\tray_app"
 
+:: 创建临时默认配置
+echo 创建默认配置...
+(
+echo # StatusScreenSaver 配置文件
+echo.
+echo server:
+echo   url: ""
+echo   token: null
+echo   reconnect_interval: 5
+echo   heartbeat_interval: 30
+echo   offline_mode: true
+echo.
+echo device:
+echo   name: "未命名设备"
+echo   location: ""
+echo   id: null
+echo.
+echo playlist:
+echo   auto_play: true
+echo   interval: 30
+echo   shuffle: false
+echo.
+echo contents: []
+echo.
+echo download:
+echo   enabled: false
+echo   content_server: ""
+echo   check_interval: 300
+echo   download_dir: "contents/downloaded"
+echo.
+echo ipc:
+echo   pipe_name: "statusscreensaver_ipc"
+echo   max_clients: 5
+echo.
+echo ui:
+echo   background_color: "#000000"
+echo   error_display_time: 5
+echo.
+echo state:
+echo   file: "state.json"
+echo   auto_save: true
+echo   auto_save_interval: 60
+) > config.yaml
+
 pyinstaller --onefile --windowed ^
     --name "StatusScreenSaverTray" ^
     --icon "assets\tray_icon.ico" ^
@@ -63,8 +107,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-:: 复制配置文件
-echo 复制配置文件...
+:: 复制配置文件模板
 copy /y "config.yaml" "%DIST_DIR%\config.yaml"
 
 :: ========================================
@@ -95,20 +138,31 @@ if exist statusscreensaver.exe (
     echo 已生成: statusscreensaver.scr
 )
 
-:: 创建内容目录
-echo 创建内容目录...
-mkdir "%DIST_DIR%\contents\images" 2>nul
-mkdir "%DIST_DIR%\contents\videos" 2>nul
-
-:: 创建示例配置
-echo 创建默认配置...
+:: 创建使用说明
+echo 创建使用说明...
 (
-echo # 将图片文件放入 images 目录
-echo # 将视频文件放入 videos 目录
+echo # StatusScreenSaver 使用说明
 echo.
-echo # 支持的图片格式: jpg, png, bmp, gif
-echo # 支持的视频格式: mp4^(h.264^), wmv, avi
-) > "%DIST_DIR%\contents\README.txt"
+echo ## 快速开始
+echo.
+echo 1. 运行 StatusScreenSaverTray.exe
+echo 2. 右键托盘图标 -^> 内容管理
+echo 3. 添加图片、视频或时钟
+echo 4. 右键 statusscreensaver.scr 选择"安装"
+echo.
+echo ## 配置服务器（可选）
+echo.
+echo 编辑 config.yaml，设置服务器地址：
+echo   server:
+echo     url: "ws://服务器IP:端口/ws"
+echo     offline_mode: false
+echo.
+echo ## 支持的格式
+echo.
+echo 图片: jpg, png, bmp, gif
+echo 视频: mp4 ^(h.264^), wmv, avi
+echo.
+) > README.txt
 
 :: ========================================
 echo.
@@ -122,12 +176,12 @@ echo 生成的文件:
 echo   - StatusScreenSaverTray.exe  (常驻应用)
 echo   - statusscreensaver.scr      (系统屏保)
 echo   - config.yaml                (配置文件)
-echo   - contents\                  (内容目录)
+echo   - README.txt                 (使用说明)
 echo.
 echo 使用说明:
-echo 1. 编辑 config.yaml 配置服务器地址
-echo 2. 将图片/视频放入 contents 目录
-echo 3. 运行 StatusScreenSaverTray.exe
-echo 4. 右键 statusscreensaver.scr 选择"安装"
+echo 1. 运行 StatusScreenSaverTray.exe
+echo 2. 右键托盘图标 -^> 内容管理
+echo 3. 添加图片/视频/时钟
+echo 4. 如需远程控制，编辑 config.yaml 配置服务器
 echo.
 pause

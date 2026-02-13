@@ -20,6 +20,7 @@ class TrayIcon(QObject):
     next_content = pyqtSignal()
     prev_content = pyqtSignal()
     reload_config = pyqtSignal()
+    manage_content = pyqtSignal()  # 新增：内容管理信号
     
     def __init__(self, config, playlist, ipc_server):
         super().__init__()
@@ -46,39 +47,44 @@ class TrayIcon(QObject):
             self.icon = QIcon(pixmap)
         
         self.tray = QSystemTrayIcon(self.icon)
-        self.tray.setToolTip("屏幕保护程序")
+        self.tray.setToolTip("StatusScreenSaver")
     
     def _create_menu(self):
         """创建右键菜单"""
         self.menu = QMenu()
         
         # 显示全屏
-        show_action = QAction("显示全屏", self.menu)
+        show_action = QAction("🖥️ 显示全屏", self.menu)
         show_action.triggered.connect(lambda: self.show_fullscreen.emit())
         self.menu.addAction(show_action)
         
         self.menu.addSeparator()
         
         # 下一个/上一个
-        next_action = QAction("下一个内容", self.menu)
+        next_action = QAction("⏭️ 下一个内容", self.menu)
         next_action.triggered.connect(self._on_next)
         self.menu.addAction(next_action)
         
-        prev_action = QAction("上一个内容", self.menu)
+        prev_action = QAction("⏮️ 上一个内容", self.menu)
         prev_action.triggered.connect(self._on_prev)
         self.menu.addAction(prev_action)
         
         self.menu.addSeparator()
         
+        # 内容管理
+        manage_action = QAction("📁 内容管理...", self.menu)
+        manage_action.triggered.connect(lambda: self.manage_content.emit())
+        self.menu.addAction(manage_action)
+        
         # 重新加载配置
-        reload_action = QAction("重新加载配置", self.menu)
+        reload_action = QAction("🔄 重新加载配置", self.menu)
         reload_action.triggered.connect(lambda: self.reload_config.emit())
         self.menu.addAction(reload_action)
         
         self.menu.addSeparator()
         
         # 退出
-        exit_action = QAction("退出", self.menu)
+        exit_action = QAction("❌ 退出", self.menu)
         exit_action.triggered.connect(lambda: self.exit_app.emit())
         self.menu.addAction(exit_action)
         
