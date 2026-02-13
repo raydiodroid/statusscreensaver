@@ -2,9 +2,12 @@
 屏幕保护控制服务器 - 主入口
 """
 
+from pathlib import Path
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Query, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import APIKeyHeader
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime, timedelta
@@ -37,6 +40,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 挂载静态文件
+STATIC_DIR = Path(__file__).parent / "static"
+if STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 # ============ 认证 ============
 auth_manager = AuthManager()
@@ -170,6 +178,22 @@ def health_check():
         "timestamp": datetime.now().isoformat(),
         "connected_devices": ws_manager.count()
     }
+
+@app.get("/panel")
+async def admin_panel():
+    """管理页面"""
+    index_file = STATIC_DIR / "index.html"
+    if index_file.exists():
+        return FileResponse(str(index_file))
+    return {"error": "Admin panel not found"}
+
+@app.get("/dashboard")
+async def dashboard():
+    """管理页面（别名）"""
+    index_file = STATIC_DIR / "index.html"
+    if index_file.exists():
+        return FileResponse(str(index_file))
+    return {"error": "Dashboard not found"}
 
 @app.get("/devices")
 def list_devices(api_key: str = Depends(verify_api_key)):

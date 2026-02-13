@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StatusScreenSaver 控制面板</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 30px;
+        }
+        
+        header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ade80;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-dot.offline {
+            background: #f87171;
+            animation: none;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        .device-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .device-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.2s;
+        }
+        
+        .device-item:hover {
+            background: rgba(255,255,255,0.08);
+        }
+        
+        .device-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .device-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .device-icon.offline {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        }
+        
+        .device-name {
+            font-weight: 500;
+        }
+        
+        .device-meta {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            margin-top: 4px;
+        }
+        
+        .device-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .content-preview {
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .content-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .content-info {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .content-type {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(102, 126, 234, 0.2);
+            color: #a5b4fc;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .content-name {
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .playlist {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .playlist-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .playlist-item:hover {
+            background: rgba(255,255,255,0.08);
+        }
+        
+        .playlist-item.active {
+            background: rgba(102, 126, 234, 0.2);
+            border: 1px solid rgba(102, 126, 234, 0.5);
+        }
+        
+        .playlist-index {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .playlist-item.active .playlist-index {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .playlist-info {
+            flex: 1;
+        }
+        
+        .playlist-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .playlist-duration {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            background: rgba(0,0,0,0.9);
+            color: white;
+            border-radius: 12px;
+            font-size: 14px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.success {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+        }
+        
+        .toast.error {
+            background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .config-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .config-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .config-label {
+            width: 120px;
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .config-input {
+            flex: 1;
+            padding: 10px 14px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .config-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🖥️ StatusScreenSaver 控制面板</h1>
+            <div class="status-badge">
+                <span class="status-dot" id="connectionDot"></span>
+                <span id="connectionStatus">已连接</span>
+            </div>
+        </header>
+        
+        <div class="grid">
+            <!-- 设备列表 -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">设备列表</span>
+                    <div class="card-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="refreshDevices()">🔄 刷新</button>
+                        <button class="btn btn-primary btn-sm" onclick="broadcastCommand('next')">📢 全部下一个</button>
+                    </div>
+                </div>
+                <div id="deviceList" class="device-list">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 当前内容 -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">当前内容</span>
+                    <button class="btn btn-secondary btn-sm" onclick="refreshCurrent()">🔄 刷新</button>
+                </div>
+                <div class="content-preview" id="contentPreview">
+                    <div class="content-info">
+                        <div class="content-type" id="contentType">时钟</div>
+                        <div class="content-name" id="contentName">datetime</div>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="btn btn-secondary" onclick="broadcastCommand('prev')">⏮️ 上一个</button>
+                    <button class="btn btn-primary" onclick="broadcastCommand('next')">⏭️ 下一个</button>
+                    <button class="btn btn-secondary" onclick="broadcastCommand('pause')">⏸️ 暂停</button>
+                    <button class="btn btn-secondary" onclick="broadcastCommand('play')">▶️ 播放</button>
+                </div>
+            </div>
+            
+            <!-- 播放列表 -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">播放列表</span>
+                    <button class="btn btn-secondary btn-sm" onclick="broadcastCommand('reload')">🔄 重载配置</button>
+                </div>
+                <div id="playlist" class="playlist">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+            
+            <!-- 设置 -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">设置</span>
+                </div>
+                <div class="config-section">
+                    <div class="config-row">
+                        <span class="config-label">API Key:</span>
+                        <input type="password" class="config-input" id="apiKeyInput" placeholder="输入 API Key">
+                    </div>
+                    <div class="config-row">
+                        <span class="config-label">服务器地址:</span>
+                        <input type="text" class="config-input" id="serverUrlInput" placeholder="http://服务器地址:端口">
+                    </div>
+                    <div style="margin-top: 16px;">
+                        <button class="btn btn-primary" onclick="saveConfig()">💾 保存设置</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        // 配置
+        let config = {
+            serverUrl: localStorage.getItem('serverUrl') || window.location.origin,
+            apiKey: localStorage.getItem('apiKey') || ''
+        };
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('serverUrlInput').value = config.serverUrl;
+            document.getElementById('apiKeyInput').value = config.apiKey;
+            
+            refreshDevices();
+            loadPlaylist();
+            
+            // 定时刷新
+            setInterval(refreshDevices, 5000);
+        });
+        
+        // 保存配置
+        function saveConfig() {
+            config.serverUrl = document.getElementById('serverUrlInput').value;
+            config.apiKey = document.getElementById('apiKeyInput').value;
+            
+            localStorage.setItem('serverUrl', config.serverUrl);
+            localStorage.setItem('apiKey', config.apiKey);
+            
+            showToast('设置已保存', 'success');
+            refreshDevices();
+        }
+        
+        // API 请求
+        async function apiRequest(method, path, body = null) {
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            
+            if (config.apiKey) {
+                headers['X-API-Key'] = config.apiKey;
+            }
+            
+            const options = {
+                method,
+                headers
+            };
+            
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+            
+            const response = await fetch(`${config.serverUrl}${path}`, options);
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || '请求失败');
+            }
+            
+            return response.json();
+        }
+        
+        // 刷新设备列表
+        async function refreshDevices() {
+            try {
+                const data = await apiRequest('GET', '/devices');
+                renderDevices(data);
+                updateConnectionStatus(true);
+            } catch (error) {
+                console.error('获取设备列表失败:', error);
+                updateConnectionStatus(false);
+                showToast('获取设备列表失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 渲染设备列表
+        function renderDevices(devices) {
+            const container = document.getElementById('deviceList');
+            
+            if (!devices || devices.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                            <line x1="8" y1="21" x2="16" y2="21"></line>
+                            <line x1="12" y1="17" x2="12" y2="21"></line>
+                        </svg>
+                        <p>暂无设备连接</p>
+                        <p style="font-size: 12px; margin-top: 8px;">请确保客户端已启动并连接到服务器</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = devices.map(device => `
+                <div class="device-item" onclick="selectDevice('${device.id}')">
+                    <div class="device-info">
+                        <div class="device-icon ${device.connected ? '' : 'offline'}">
+                            ${device.connected ? '🖥️' : '💤'}
+                        </div>
+                        <div>
+                            <div class="device-name">${device.name || '未命名设备'}</div>
+                            <div class="device-meta">
+                                ${device.location || '未知位置'} · 
+                                ${device.connected ? '在线' : '离线'}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="device-status">
+                        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); sendCommand('${device.id}', 'next')">下一个</button>
+                        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); sendCommand('${device.id}', 'prev')">上一个</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 选择设备
+        function selectDevice(deviceId) {
+            console.log('选择设备:', deviceId);
+        }
+        
+        // 发送指令到指定设备
+        async function sendCommand(deviceId, action, params = {}) {
+            try {
+                await apiRequest('POST', `/device/${deviceId}/command`, {
+                    action,
+                    ...params
+                });
+                showToast('指令已发送', 'success');
+            } catch (error) {
+                showToast('发送指令失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 广播指令
+        async function broadcastCommand(action, params = {}) {
+            try {
+                await apiRequest('POST', '/broadcast', {
+                    command: {
+                        action,
+                        ...params
+                    }
+                });
+                showToast('广播指令已发送', 'success');
+            } catch (error) {
+                showToast('广播失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 加载播放列表
+        function loadPlaylist() {
+            const playlist = [
+                { type: 'image', name: 'poster1.jpg', duration: '20秒' },
+                { type: 'image', name: 'poster2.jpg', duration: '15秒' },
+                { type: 'video', name: 'promo.mp4', duration: '播完为止' },
+                { type: 'clock', name: 'datetime', duration: '10秒' }
+            ];
+            
+            const container = document.getElementById('playlist');
+            container.innerHTML = playlist.map((item, index) => `
+                <div class="playlist-item ${index === 0 ? 'active' : ''}" onclick="broadcastCommand('switch', { index: ${index} })">
+                    <div class="playlist-index">${index + 1}</div>
+                    <div class="playlist-info">
+                        <div class="playlist-name">${item.name}</div>
+                        <div class="playlist-duration">${item.type} · ${item.duration}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 刷新当前内容
+        function refreshCurrent() {
+            showToast('已刷新', 'success');
+        }
+        
+        // 更新连接状态
+        function updateConnectionStatus(connected) {
+            const dot = document.getElementById('connectionDot');
+            const status = document.getElementById('connectionStatus');
+            
+            if (connected) {
+                dot.classList.remove('offline');
+                status.textContent = '已连接';
+            } else {
+                dot.classList.add('offline');
+                status.textContent = '未连接';
+            }
+        }
+        
+        // 显示提示
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
