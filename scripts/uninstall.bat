@@ -15,8 +15,8 @@ if errorlevel 1 (
 
 :: 删除屏保文件
 echo 删除屏保程序...
-if exist "%SystemRoot%\System32\screensaver.scr" (
-    del /f "%SystemRoot%\System32\screensaver.scr"
+if exist "%SystemRoot%\System32\statusscreensaver.scr" (
+    del /f "%SystemRoot%\System32\statusscreensaver.scr"
     echo 已删除屏保文件
 )
 

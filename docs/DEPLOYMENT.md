@@ -1,4 +1,4 @@
-# 服务端部署指南
+# StatusScreenSaver 服务端部署指南
 
 ## 方案一：直接运行（开发/测试）
 
@@ -30,13 +30,13 @@ sudo nano /etc/systemd/system/screensaver-server.service
 
 ```ini
 [Unit]
-Description=ScreenSaver Control Server
+Description=StatusScreenSaver Control Server
 After=network.target
 
 [Service]
 Type=simple
 User=www-data
-WorkingDirectory=/opt/screensaver-server
+WorkingDirectory=/opt/statusscreensaver-server
 ExecStart=/usr/bin/python3 -m uvicorn main:app --host 0.0.0.0 --port 9876
 Restart=always
 RestartSec=5
@@ -64,14 +64,14 @@ sudo pip install -r requirements.txt
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable screensaver-server
-sudo systemctl start screensaver-server
+sudo systemctl enable statusscreensaver-server
+sudo systemctl start statusscreensaver-server
 
 # 查看状态
-sudo systemctl status screensaver-server
+sudo systemctl status statusscreensaver-server
 
 # 查看日志
-sudo journalctl -u screensaver-server -f
+sudo journalctl -u statusscreensaver-server -f
 ```
 
 ---
@@ -105,7 +105,7 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 
 ```bash
 cd server
-docker build -t screensaver-server .
+docker build -t statusscreensaver .
 ```
 
 ### 3. 运行容器
@@ -273,7 +273,7 @@ sudo certbot renew --dry-run
 sudo journalctl -u screensaver-server -f
 
 # Docker
-docker logs -f screensaver-server
+docker logs -f statusscreensaver
 ```
 
 ### 健康检查

@@ -1,10 +1,10 @@
 version: '3.8'
 
 services:
-  screensaver-server:
+  statusscreensaver:
     build: .
-    image: screensaver-server:latest
-    container_name: screensaver-server
+    image: statusscreensaver:latest
+    container_name: statusscreensaver
     ports:
       - "9876:9876"
     volumes:

@@ -23,7 +23,7 @@ class IPCClient:
     """IPC 客户端"""
     
     def __init__(self, config: dict):
-        self.pipe_name = config.get("pipe_name", "screensaver_ipc")
+        self.pipe_name = config.get("pipe_name", "statusscreensaver_ipc")
         self.connected = False
         self.pipe = None
         self._running = False

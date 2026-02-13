@@ -63,3 +63,8 @@ client/tray_app/assets/*.png
 
 # PyInstaller
 *.spec
+
+# Docker image exports (too large for git)
+*.tar.gz
+*.tar
+screensaver-server-*.tar.gz

@@ -44,7 +44,7 @@ download:
 
 # IPC 配置
 ipc:
-  pipe_name: "screensaver_ipc"
+  pipe_name: "statusscreensaver_ipc"
   max_clients: 5
 
 # UI 配置

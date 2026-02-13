@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 # ============ FastAPI 应用 ============
 app = FastAPI(
-    title="ScreenSaver Control Server",
+    title="StatusScreenSaver Control Server",
     description="屏幕保护程序控制服务器 API",
     version="2.0.0"
 )

@@ -19,9 +19,9 @@ set SYSTEM_DIR=%SystemRoot%\System32
 
 :: 安装屏保程序
 echo 安装屏保程序到系统目录...
-if exist "%SRC_DIR%\screensaver.scr" (
-    copy /y "%SRC_DIR%\screensaver.scr" "%SYSTEM_DIR%\screensaver.scr"
-    echo 已复制: %SYSTEM_DIR%\screensaver.scr
+if exist "%SRC_DIR%\statusscreensaver.scr" (
+    copy /y "%SRC_DIR%\statusscreensaver.scr" "%SYSTEM_DIR%\statusscreensaver.scr"
+    echo 已复制: %SYSTEM_DIR%\statusscreensaver.scr
 ) else (
     echo 错误: 未找到 screensaver.scr
     echo 请先运行 build.bat 进行打包
@@ -32,7 +32,7 @@ if exist "%SRC_DIR%\screensaver.scr" (
 :: 注册屏保
 echo.
 echo 注册屏保程序...
-reg add "HKCU\Control Panel\Desktop" /v SCRNSAVE.EXE /t REG_SZ /d "%SYSTEM_DIR%\screensaver.scr" /f
+reg add "HKCU\Control Panel\Desktop" /v SCRNSAVE.EXE /t REG_SZ /d "%SYSTEM_DIR%\statusscreensaver.scr" /f
 
 echo.
 echo ========================================
@@ -42,6 +42,6 @@ echo.
 echo 现在可以在 Windows 设置中选择此屏保:
 echo   设置 → 个性化 → 锁屏界面 → 屏幕保护程序设置
 echo.
-echo 注意: 请确保 ScreenSaverTray.exe 正在运行
+echo 注意: 请确保 StatusScreenSaverTray.exe 正在运行
 echo.
 pause

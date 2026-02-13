@@ -23,7 +23,7 @@ class IPCServer:
     """IPC 服务端"""
     
     def __init__(self, config: dict):
-        self.pipe_name = config.get("pipe_name", "screensaver_ipc")
+        self.pipe_name = config.get("pipe_name", "statusscreensaver_ipc")
         self.max_clients = config.get("max_clients", 5)
         self.running = False
         self.clients = {}

@@ -26,7 +26,7 @@ logging.basicConfig(
     format='%(asctime)s [%(levelname)s] %(message)s',
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler('tray_app.log', encoding='utf-8')
+        logging.FileHandler('statusscreensaver_tray.log', encoding='utf-8')
     ]
 )
 logger = logging.getLogger(__name__)

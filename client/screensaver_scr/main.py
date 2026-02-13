@@ -26,7 +26,7 @@ logging.basicConfig(
     format='%(asctime)s [%(levelname)s] %(message)s',
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler('screensaver_scr.log', encoding='utf-8')
+        logging.FileHandler('statusscreensaver_scr.log', encoding='utf-8')
     ]
 )
 logger = logging.getLogger(__name__)
@@ -60,7 +60,7 @@ def main():
 def run_screensaver(app):
     """运行屏保模式"""
     # 创建 IPC 客户端
-    ipc_client = IPCClient({"pipe_name": "screensaver_ipc"})
+    ipc_client = IPCClient({"pipe_name": "statusscreensaver_ipc"})
     
     if ipc_client.connect():
         logger.info("已连接到常驻应用")

@@ -36,7 +36,7 @@ echo ========================================
 echo 打包常驻应用...
 echo ========================================
 cd ..\tray_app
-pyinstaller --onefile --windowed --name "ScreenSaverTray" --distpath "../../dist" main.py
+pyinstaller --onefile --windowed --name "StatusScreenSaverTray" --distpath "../../dist" main.py
 
 :: 打包屏保程序
 echo.
@@ -44,15 +44,15 @@ echo ========================================
 echo 打包屏保程序...
 echo ========================================
 cd ..\screensaver_scr
-pyinstaller --onefile --windowed --name "screensaver" --distpath "../../dist" main.py
+pyinstaller --onefile --windowed --name "statusscreensaver" --distpath "../../dist" main.py
 
 :: 重命名为 .scr
 echo.
 echo 重命名屏保程序为 .scr 文件...
 cd ..\..\dist
-if exist screensaver.exe (
-    move /y screensaver.exe screensaver.scr
-    echo 已生成: screensaver.scr
+if exist statusscreensaver.exe (
+    move /y statusscreensaver.exe statusscreensaver.scr
+    echo 已生成: statusscreensaver.scr
 )
 
 echo.
@@ -61,8 +61,8 @@ echo 打包完成!
 echo ========================================
 echo.
 echo 生成的文件位于 dist 目录:
-echo   - ScreenSaverTray.exe (常驻应用)
-echo   - screensaver.scr     (系统屏保)
+echo   - StatusScreenSaverTray.exe (常驻应用)
+echo   - statusscreensaver.scr     (系统屏保)
 echo.
 echo 使用说明:
 echo 1. 运行 ScreenSaverTray.exe 启动常驻应用

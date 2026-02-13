@@ -1,4 +1,4 @@
-# 屏幕保护程序控制系统
+# StatusScreenSaver 控制系统
 
 一个支持远程控制和多设备同步的 Windows 屏幕保护程序系统。
 
