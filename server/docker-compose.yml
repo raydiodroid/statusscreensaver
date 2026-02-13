@@ -12,6 +12,9 @@ services:
     restart: always
     environment:
       - TZ=Asia/Shanghai
+      - SCREENSAVER_API_KEY=${SCREENSAVER_API_KEY:-sk_default_key_change_me}
+      - SCREENSAVER_JWT_SECRET=${SCREENSAVER_JWT_SECRET:-}
+      - SCREENSAVER_TOKEN_EXPIRE_HOURS=${SCREENSAVER_TOKEN_EXPIRE_HOURS:-24}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9876/"]
       interval: 30s

@@ -2,6 +2,7 @@
 认证模块 - API Key 和 Token 管理
 """
 
+import os
 import secrets
 import jwt
 from datetime import datetime, timedelta
@@ -12,15 +13,23 @@ class AuthManager:
     """认证管理器"""
     
     def __init__(self, jwt_secret: str = None):
-        # API Keys（从配置或数据库加载）
-        self.api_keys = {
-            "sk_default_key_change_me": "default",
-        }
+        # API Keys（从环境变量读取）
+        # 格式: SCREENSAVER_API_KEY=your-key-here 或多个用逗号分隔
+        env_api_key = os.environ.get("SCREENSAVER_API_KEY", "")
         
-        # JWT 配置
-        self.jwt_secret = jwt_secret or secrets.token_hex(32)
+        if env_api_key:
+            # 支持多个 API Key，用逗号分隔
+            self.api_keys = {key.strip(): f"key_{i}" for i, key in enumerate(env_api_key.split(","))}
+        else:
+            # 默认 API Key（生产环境应设置环境变量）
+            self.api_keys = {
+                "sk_default_key_change_me": "default",
+            }
+        
+        # JWT 配置（可从环境变量读取）
+        self.jwt_secret = jwt_secret or os.environ.get("SCREENSAVER_JWT_SECRET") or secrets.token_hex(32)
         self.jwt_algorithm = "HS256"
-        self.token_expire_hours = 24
+        self.token_expire_hours = int(os.environ.get("SCREENSAVER_TOKEN_EXPIRE_HOURS", "24"))
     
     # ========== API Key 管理 ==========
     
