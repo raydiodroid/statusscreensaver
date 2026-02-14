@@ -92,6 +92,11 @@ class ScreenSaverWindow(QWidget):
     
     def show_content(self, content: dict):
         """显示内容"""
+        if not content:
+            logger.warning("内容为空，无法显示")
+            self.show_error("内容为空", "未获取到有效内容")
+            return
+        
         self.current_content = content
         content_type = content.get("type")
         
@@ -128,6 +133,11 @@ class ScreenSaverWindow(QWidget):
     
     def switch_to(self, index: int):
         """切换到指定索引"""
+        if not self.playlist:
+            logger.warning("播放列表为空")
+            self.show_error("无内容", "播放列表为空，请先添加内容")
+            return
+        
         if 0 <= index < len(self.playlist):
             self.current_index = index
             self.show_content(self.playlist[index])

@@ -84,9 +84,17 @@ def run_screensaver(app):
         
         # 显示初始内容
         if content_response and content_response.get("type") == "content":
-            window.show_content(content_response["data"])
+            content = content_response.get("data")
+            if content:
+                window.show_content(content)
+            elif playlist:
+                window.switch_to(0)
+            else:
+                logger.warning("无可用内容")
         elif playlist:
             window.switch_to(0)
+        else:
+            logger.warning("无可用内容，请先添加播放列表")
         
         # 运行应用
         exit_code = app.exec()
