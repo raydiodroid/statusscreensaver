@@ -36,7 +36,7 @@ echo.
 echo ========================================
 echo 安装依赖...
 echo ========================================
-pip install "PyQt6>=6.5.0"
+pip install "PySide6>=6.5.0"
 pip install "websockets>=11.0"
 pip install "PyYAML>=6.0"
 pip install "pywin32>=305"

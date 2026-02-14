@@ -1,12 +1,12 @@
-"""
+﻿"""
 系统托盘图标模块
 """
 
 import logging
 from pathlib import Path
-from PyQt6.QtWidgets import QSystemTrayIcon, QMenu
-from PyQt6.QtGui import QIcon, QAction
-from PyQt6.QtCore import pyqtSignal, QObject
+from PySide6.QtWidgets import QSystemTrayIcon, QMenu
+from PySide6.QtGui import QIcon, QAction
+from PySide6.QtCore import pyqtSignal, QObject
 
 logger = logging.getLogger(__name__)
 
@@ -56,8 +56,8 @@ class TrayIcon(QObject):
     
     def _create_default_icon(self):
         """创建默认图标"""
-        from PyQt6.QtGui import QPixmap
-        from PyQt6.QtCore import Qt
+        from PySide6.QtGui import QPixmap
+        from PySide6.QtCore import Qt
         pixmap = QPixmap(64, 64)
         pixmap.fill(Qt.GlobalColor.blue)
         return QIcon(pixmap)

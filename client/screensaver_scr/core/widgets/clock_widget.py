@@ -1,13 +1,13 @@
-"""
+﻿"""
 时钟组件
 """
 
 import logging
 from datetime import datetime
 from zoneinfo import ZoneInfo
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel
-from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QFont
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel
+from PySide6.QtCore import Qt, QTimer
+from PySide6.QtGui import QFont
 
 logger = logging.getLogger(__name__)
 

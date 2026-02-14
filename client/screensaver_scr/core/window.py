@@ -1,10 +1,10 @@
-"""
+﻿"""
 全屏窗口模块
 """
 
 import logging
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget
-from PyQt6.QtCore import Qt, QTimer
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QStackedWidget
+from PySide6.QtCore import Qt, QTimer
 
 from .widgets import ImageWidget, VideoWidget, ClockWidget, ErrorWidget
 

@@ -1,17 +1,17 @@
-"""
+﻿"""
 配置管理界面
 """
 
 import logging
 from pathlib import Path
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QTabWidget, QWidget, QFormLayout, QLineEdit, QSpinBox,
     QCheckBox, QGroupBox, QColorDialog, QMessageBox, QScrollArea,
     QTextEdit
 )
-from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QColor
+from PySide6.QtCore import Qt, QTimer
+from PySide6.QtGui import QColor
 
 logger = logging.getLogger(__name__)
 
@@ -524,7 +524,7 @@ class ConfigDialog(QDialog):
     
     def _show_result_dialog(self, title: str, message: str):
         """显示结果对话框（内容可复制）"""
-        from PyQt6.QtWidgets import QDialog, QVBoxLayout, QTextEdit, QPushButton
+        from PySide6.QtWidgets import QDialog, QVBoxLayout, QTextEdit, QPushButton
         
         dialog = QDialog(self)
         dialog.setWindowTitle(title)

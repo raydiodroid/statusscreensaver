@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 屏幕保护程序 - 常驻应用（本地管理端）
 """
@@ -7,8 +7,8 @@ import sys
 import yaml
 import logging
 from pathlib import Path
-from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import Qt, QTimer
+from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import Qt, QTimer
 
 # 添加当前目录到路径
 sys.path.insert(0, str(Path(__file__).parent))

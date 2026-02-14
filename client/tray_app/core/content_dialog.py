@@ -1,16 +1,16 @@
-"""
+﻿"""
 内容管理界面
 """
 
 import logging
 from pathlib import Path
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QListWidget, QListWidgetItem, QFileDialog, QMessageBox,
     QComboBox, QSpinBox, QGroupBox, QFormLayout
 )
-from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QIcon
+from PySide6.QtCore import Qt, pyqtSignal
+from PySide6.QtGui import QIcon
 
 logger = logging.getLogger(__name__)
 
