@@ -155,6 +155,56 @@ def main():
     tray_icon.show()
     logger.info("系统托盘图标已创建")
     
+    # 显示全屏屏保
+    def on_show_fullscreen():
+        import subprocess
+        import os
+        try:
+            # 获取屏保程序路径
+            if getattr(sys, 'frozen', False):
+                # 打包后，屏保在同一目录
+                exe_dir = Path(sys.executable).parent
+            else:
+                # 开发模式，在 dist 目录
+                exe_dir = Path(__file__).parent.parent.parent / "dist"
+            
+            scr_path = exe_dir / "statusscreensaver.scr"
+            if not scr_path.exists():
+                scr_path = exe_dir / "statusscreensaver.exe"
+            
+            if scr_path.exists():
+                subprocess.Popen([str(scr_path), "/s"], cwd=str(exe_dir))
+                logger.info(f"已启动屏保: {scr_path}")
+            else:
+                tray_icon.show_message("错误", "未找到屏保程序")
+                logger.error(f"屏保程序不存在: {scr_path}")
+        except Exception as e:
+            logger.error(f"启动屏保失败: {e}")
+            tray_icon.show_message("启动失败", str(e))
+    
+    tray_icon.show_fullscreen.connect(on_show_fullscreen)
+    
+    # 退出应用
+    def on_exit():
+        logger.info("用户请求退出")
+        QApplication.quit()
+    
+    tray_icon.exit_app.connect(on_exit)
+    
+    # 重新加载配置
+    def on_reload_config():
+        nonlocal config
+        try:
+            config = load_config()
+            playlist.reload(config)
+            tray_icon.show_message("配置重载", "配置已重新加载")
+            logger.info("配置已重新加载")
+        except Exception as e:
+            logger.error(f"重载配置失败: {e}")
+            tray_icon.show_message("配置重载失败", str(e))
+    
+    tray_icon.reload_config.connect(on_reload_config)
+    
     # 内容管理对话框
     def on_manage_content():
         from core.content_dialog import ContentManagerDialog
@@ -169,6 +219,17 @@ def main():
             tray_icon.show_message("内容管理", f"已更新 {len(new_contents)} 个内容")
     
     tray_icon.manage_content.connect(on_manage_content)
+    
+    # 设置对话框
+    def on_open_settings():
+        from core.config_dialog import ConfigDialog
+        dialog = ConfigDialog(config, save_callback=save_config)
+        if dialog.exec():
+            # 配置已更新，重新加载
+            playlist.reload(config)
+            logger.info("配置已更新")
+    
+    tray_icon.open_settings.connect(on_open_settings)
     
     # 内容切换回调 - 同步到 IPC
     def on_content_change(content, index):

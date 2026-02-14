@@ -1,58 +1,38 @@
-# 服务器配置
+# StatusScreenSaver 配置文件
+
 server:
-  url: "ws://localhost:9876/ws"
-  token: null                # 首次连接时由服务器分配
-  reconnect_interval: 5      # 断线重连间隔（秒）
-  heartbeat_interval: 30     # 心跳间隔（秒）
-  offline_mode: false        # 是否支持离线模式
+  url: ""
+  token: null
+  reconnect_interval: 5
+  heartbeat_interval: 30
+  offline_mode: true
 
-# 设备信息
 device:
-  name: "会议室A"
-  location: "三楼大厅"
-  id: null                   # 首次注册时由服务器分配，持久化后恢复
+  name: "未命名设备"
+  location: ""
+  id: null
 
-# 播放列表配置
 playlist:
-  auto_play: true            # 是否自动轮播
-  interval: 30               # 轮播间隔（秒）
-  shuffle: false             # 是否随机播放
+  auto_play: true
+  interval: 30
+  shuffle: false
 
-# 内容列表
-contents:
-  - type: image
-    path: "../contents/images/poster1.jpg"
-    duration: 20
-  - type: image
-    path: "../contents/images/poster2.jpg"
-    duration: 15
-  - type: video
-    path: "../contents/videos/promo.mp4"
-    duration: null           # 视频播完为止
-  - type: clock
-    duration: 10
-    mode: "datetime"         # time_only / datetime
-    timezone: "Asia/Shanghai"
-    format_24h: true
+contents: []
 
-# 内容下载配置
 download:
-  enabled: false             # 是否启用远程下载
-  content_server: "http://localhost:8000"
+  enabled: false
+  content_server: ""
   check_interval: 300
-  download_dir: "../contents/downloaded"
+  download_dir: "contents/downloaded"
 
-# IPC 配置
 ipc:
   pipe_name: "statusscreensaver_ipc"
   max_clients: 5
 
-# UI 配置
 ui:
   background_color: "#000000"
   error_display_time: 5
 
-# 状态持久化
 state:
   file: "state.json"
   auto_save: true

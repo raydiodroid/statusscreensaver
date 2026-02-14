@@ -4,9 +4,12 @@
 
 import json
 import secrets
+import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, List, Dict
+
+logger = logging.getLogger(__name__)
 
 
 class DeviceManager:
@@ -24,8 +27,12 @@ class DeviceManager:
                 with open(self.storage_file, 'r', encoding='utf-8') as f:
                     data = json.load(f)
                     self.devices = data.get("devices", {})
-            except Exception:
+                logger.info(f"已加载 {len(self.devices)} 个设备")
+            except Exception as e:
+                logger.error(f"加载设备数据失败: {e}")
                 self.devices = {}
+        else:
+            logger.info(f"设备数据文件不存在，将创建新文件: {self.storage_file}")
     
     def _save(self):
         """保存设备数据到文件"""
@@ -35,8 +42,10 @@ class DeviceManager:
                     "devices": self.devices,
                     "updated_at": datetime.now().isoformat()
                 }, f, indent=2, ensure_ascii=False)
+            logger.debug(f"设备数据已保存到 {self.storage_file}")
         except Exception as e:
-            print(f"保存设备数据失败: {e}")
+            logger.error(f"保存设备数据失败: {e}")
+            raise
     
     def register(self, name: str, location: str = None, token: str = None) -> tuple:
         """注册设备，返回 (device_id, token)"""

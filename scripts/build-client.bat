@@ -28,6 +28,7 @@ set CLIENT_DIR=%PROJECT_DIR%\client
 :: 清理旧的构建文件
 echo 清理旧的构建文件...
 if exist "%DIST_DIR%" rmdir /s /q "%DIST_DIR%"
+if exist "%PROJECT_DIR%\build" rmdir /s /q "%PROJECT_DIR%\build"
 mkdir "%DIST_DIR%"
 
 :: 安装依赖
@@ -35,11 +36,10 @@ echo.
 echo ========================================
 echo 安装依赖...
 echo ========================================
-pip install PyQt6>=6.5.0
-pip install PyQt6-QtMultimedia>=6.5.0
-pip install websockets>=11.0
-pip install PyYAML>=6.0
-pip install pywin32>=305
+pip install "PyQt6>=6.5.0"
+pip install "websockets>=11.0"
+pip install "PyYAML>=6.0"
+pip install "pywin32>=305"
 
 :: ========================================
 echo.
@@ -94,11 +94,11 @@ echo   auto_save_interval: 60
 
 pyinstaller --onefile --windowed ^
     --name "StatusScreenSaverTray" ^
-    --icon "assets\tray_icon.ico" ^
-    --add-data "config.yaml;." ^
+    --add-data "%CLIENT_DIR%\tray_app\config.yaml;." ^
+    --add-data "%CLIENT_DIR%\tray_app\assets;assets" ^
     --distpath "%DIST_DIR%" ^
-    --workpath "%TEMP%\build_tray" ^
-    --specpath "%TEMP%" ^
+    --workpath "%PROJECT_DIR%\build\tray" ^
+    --specpath "%PROJECT_DIR%\build" ^
     main.py
 
 if errorlevel 1 (
@@ -120,8 +120,8 @@ cd /d "%CLIENT_DIR%\screensaver_scr"
 pyinstaller --onefile --windowed ^
     --name "statusscreensaver" ^
     --distpath "%DIST_DIR%" ^
-    --workpath "%TEMP%\build_scr" ^
-    --specpath "%TEMP%" ^
+    --workpath "%PROJECT_DIR%\build\scr" ^
+    --specpath "%PROJECT_DIR%\build" ^
     main.py
 
 if errorlevel 1 (

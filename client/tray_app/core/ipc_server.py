@@ -68,19 +68,21 @@ class IPCServer:
     def _handle_client(self):
         """处理客户端连接"""
         pipe_path = f"\\\\.\\pipe\\{self.pipe_name}"
+        pipe = None
+        client_id = None
         
         try:
             # 创建命名管道
             pipe = win32pipe.CreateNamedPipe(
                 pipe_path,
                 win32pipe.PIPE_ACCESS_DUPLEX,
-                win32pipe.PIPE_TYPE_MESSAGE | win32pipe.PIPE_READMODE_MESSAGE | win32pipe.PIPE_NOWAIT,
+                win32pipe.PIPE_TYPE_MESSAGE | win32pipe.PIPE_READMODE_MESSAGE | win32pipe.PIPE_WAIT,
                 self.max_clients,
                 65536, 65536,
                 0, None
             )
             
-            # 等待客户端连接
+            # 等待客户端连接（阻塞模式）
             win32pipe.ConnectNamedPipe(pipe, None)
             
             self.client_counter += 1
@@ -110,16 +112,23 @@ class IPCServer:
                     logger.error(f"IPC 读取错误: {e}")
                     break
                     
+        except pywintypes.error as e:
+            if e.winerror == 535:  # 管道正在等待连接（非阻塞模式）
+                pass
+            else:
+                logger.error(f"IPC 客户端处理错误: {e}")
         except Exception as e:
             logger.error(f"IPC 客户端处理错误: {e}")
         finally:
-            if client_id in self.clients:
+            if client_id and client_id in self.clients:
                 del self.clients[client_id]
-            try:
-                win32file.CloseHandle(pipe)
-            except:
-                pass
-            logger.info(f"IPC 客户端已断开: {client_id}")
+            if pipe:
+                try:
+                    win32file.CloseHandle(pipe)
+                except:
+                    pass
+            if client_id:
+                logger.info(f"IPC 客户端已断开: {client_id}")
     
     def _process_message(self, message: str) -> str:
         """处理消息"""

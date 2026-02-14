@@ -95,6 +95,7 @@ async def websocket_endpoint(
     try:
         # 首条消息必须是注册
         message = await websocket.receive_text()
+        logger.info(f"收到消息: {message}")
         data = json.loads(message)
         
         if data.get("type") != "register":
@@ -111,19 +112,29 @@ async def websocket_endpoint(
         # 注册设备
         name = data.get("name", "Unknown")
         location = data.get("location")
-        device_id, new_token = device_manager.register(name, location)
+        logger.info(f"注册设备: name={name}, location={location}")
+        
+        try:
+            device_id, new_token = device_manager.register(name, location)
+            logger.info(f"设备注册成功: {device_id}")
+        except Exception as e:
+            logger.error(f"设备注册失败: {e}")
+            await websocket.close(code=5000, reason=f"Registration failed: {str(e)}")
+            return
         
         ws_manager.connect(device_id, websocket)
         
         # 发送注册确认
-        await websocket.send(json.dumps({
+        response = {
             "type": "register_ack",
             "device_id": device_id,
             "token": new_token,
             "token_expires": (datetime.now() + timedelta(hours=24)).isoformat()
-        }))
+        }
+        logger.info(f"发送注册确认: {response}")
+        await websocket.send_text(json.dumps(response))
         
-        logger.info(f"设备注册: {device_id} ({name})")
+        logger.info(f"设备已连接: {device_id} ({name})")
         
         # 消息循环
         while True:
@@ -133,7 +144,7 @@ async def websocket_endpoint(
             
             if msg_type == "ping":
                 device_manager.update_last_seen(device_id)
-                await websocket.send(json.dumps({"type": "pong"}))
+                await websocket.send_text(json.dumps({"type": "pong"}))
                 
             elif msg_type == "status":
                 device_manager.update_status(device_id, data.get("data"))
@@ -147,7 +158,7 @@ async def websocket_endpoint(
             device_manager.set_offline(device_id)
             logger.info(f"设备断开: {device_id}")
     except Exception as e:
-        logger.error(f"WebSocket 错误: {e}")
+        logger.error(f"WebSocket 错误: {type(e).__name__}: {e}", exc_info=True)
         if device_id:
             ws_manager.disconnect(device_id)
             device_manager.set_offline(device_id)

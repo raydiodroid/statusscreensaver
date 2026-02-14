@@ -20,7 +20,8 @@ class TrayIcon(QObject):
     next_content = pyqtSignal()
     prev_content = pyqtSignal()
     reload_config = pyqtSignal()
-    manage_content = pyqtSignal()  # 新增：内容管理信号
+    manage_content = pyqtSignal()  # 内容管理信号
+    open_settings = pyqtSignal()   # 设置信号
     
     def __init__(self, config, playlist, ipc_server):
         super().__init__()
@@ -34,20 +35,32 @@ class TrayIcon(QObject):
     def _create_tray_icon(self):
         """创建托盘图标"""
         # 尝试加载图标文件
-        icon_path = Path(__file__).parent.parent / "assets" / "tray_icon.ico"
+        icon_path = Path(__file__).parent.parent / "assets" / "tray_icon.png"
         
         if icon_path.exists():
             self.icon = QIcon(str(icon_path))
         else:
-            # 使用默认图标
-            from PyQt6.QtGui import QPixmap
-            from PyQt6.QtCore import Qt
-            pixmap = QPixmap(64, 64)
-            pixmap.fill(Qt.GlobalColor.blue)
-            self.icon = QIcon(pixmap)
+            # 尝试从资源目录加载（PyInstaller 打包后）
+            import sys
+            if getattr(sys, 'frozen', False):
+                bundle_path = Path(sys._MEIPASS) / "assets" / "tray_icon.png"
+                if bundle_path.exists():
+                    self.icon = QIcon(str(bundle_path))
+                else:
+                    self.icon = self._create_default_icon()
+            else:
+                self.icon = self._create_default_icon()
         
         self.tray = QSystemTrayIcon(self.icon)
         self.tray.setToolTip("StatusScreenSaver")
+    
+    def _create_default_icon(self):
+        """创建默认图标"""
+        from PyQt6.QtGui import QPixmap
+        from PyQt6.QtCore import Qt
+        pixmap = QPixmap(64, 64)
+        pixmap.fill(Qt.GlobalColor.blue)
+        return QIcon(pixmap)
     
     def _create_menu(self):
         """创建右键菜单"""
@@ -75,6 +88,11 @@ class TrayIcon(QObject):
         manage_action = QAction("📁 内容管理...", self.menu)
         manage_action.triggered.connect(lambda: self.manage_content.emit())
         self.menu.addAction(manage_action)
+        
+        # 设置
+        settings_action = QAction("⚙️ 设置...", self.menu)
+        settings_action.triggered.connect(lambda: self.open_settings.emit())
+        self.menu.addAction(settings_action)
         
         # 重新加载配置
         reload_action = QAction("🔄 重新加载配置", self.menu)

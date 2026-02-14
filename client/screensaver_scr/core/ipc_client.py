@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 try:
     import win32file
+    import win32pipe
     import pywintypes
     HAS_WIN32 = True
 except ImportError:
@@ -56,9 +57,9 @@ class IPCClient:
             )
             
             # 设置消息模式
-            win32file.SetNamedPipeHandleState(
+            win32pipe.SetNamedPipeHandleState(
                 self.pipe,
-                win32file.PIPE_READMODE_MESSAGE,
+                win32pipe.PIPE_READMODE_MESSAGE,
                 None, None
             )
             
